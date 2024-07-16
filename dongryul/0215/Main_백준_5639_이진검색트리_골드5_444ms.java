@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 /** Main_백준_5639_이진검색트리_골드5_444ms*/
-public class Main_5639_이진검색트리_골드5_김동률_444ms {
+class Main_5639_이진검색트리_골드5_김동률_444ms {
 	
 	static StringBuilder sb = new StringBuilder();
 	// 빈 루트 노드 생성
