@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 
-class Main_16234 {
+class Main_백준_16234_골드4_인구이동_3176ms {
     private static int N, L, R;
     private static int[][] map;
     private static HashMap<Point, Point> pointParentMap = null;
@@ -69,8 +69,8 @@ class Main_16234 {
             initData();
 
             boolean isFoundUnion = false;
-            for (int r = 1; r < N + 2; r++) {
-                for (int c = 1; c < N + 2; c++) {
+            for (int r = 1; r < N + 1; r++) {
+                for (int c = 1; c < N + 1; c++) {
                     // 각 자리를 돌면서 union 을 한다.
                     Point curr = new Point(r, c);
                     for (int d = 0; d < 4; d++) {
@@ -89,10 +89,31 @@ class Main_16234 {
             }
 
             // 각각 동료? 들끼리 인구를 나눈다.
+            // 1. 자기 자신이 root 인 애들 중 child 가 복수개인 애들
+            for (Point point: pointParentMap.keySet()) {
+                if (pointParentMap.get(point) == point && pointChildMap.get(point).size() > 1) {
+                    // 2. 자식 노드들의 총 합을 구하고, map 을 갱신한다.
+                    Iterator<Point> pointIterator = pointChildMap.get(point).iterator();
+                    int childSum = 0;
+                    while (pointIterator.hasNext()) {
+                        Point child = pointIterator.next();
+                        childSum += map[child.row][child.col];
+                    }
 
+                    int childValue = childSum / pointChildMap.get(point).size();
+
+                    pointIterator = pointChildMap.get(point).iterator();
+                    while (pointIterator.hasNext()) {
+                        Point child = pointIterator.next();
+                        map[child.row][child.col] = childValue;
+                    }
+                }
+            }
 
             ++result;
         } // end of while
+
+        System.out.println(result);
 
     } // end of main
 
@@ -138,12 +159,28 @@ class Main_16234 {
         Point rootB = findParent(b);
         if (rootA != rootB) { // 서로의 부모가 다르다면, 자식이 더 많은 부모에 이어준다, 동일하다면 r, c 가 더 작은 값으로 이어준다.
             if (pointChildMap.get(rootA).size() > pointChildMap.get(rootB).size()) {
-
+                pointParentMap.put(rootB, rootA);
+                pointChildMap.get(rootA).addAll(pointChildMap.get(rootB));
             } else if (pointChildMap.get(rootA).size() < pointChildMap.get(rootB).size()) {
-
+                pointParentMap.put(rootA, rootB);
+                pointChildMap.get(rootB).addAll(pointChildMap.get(rootA));
             } else {
                 // r, c 가 더 작은 값에 추가.
-
+                if (rootA.row < rootB.row) {
+                    pointParentMap.put(rootB, rootA);
+                    pointChildMap.get(rootA).addAll(pointChildMap.get(rootB));
+                } else if (rootA.row > rootB.row) {
+                    pointParentMap.put(rootA, rootB);
+                    pointChildMap.get(rootB).addAll(pointChildMap.get(rootA));
+                } else {
+                    if (rootA.col < rootB.col) {
+                        pointParentMap.put(rootB, rootA);
+                        pointChildMap.get(rootA).addAll(pointChildMap.get(rootB));
+                    } else {
+                        pointParentMap.put(rootA, rootB);
+                        pointChildMap.get(rootB).addAll(pointChildMap.get(rootA));
+                    }
+                }
             }
         }
     }
