@@ -1,9 +1,10 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Baekjoon_18405 {
+public class Baekjoon_18405_Gold5_21316_252ms {
 
     private static class Point {
         int row;
@@ -22,14 +23,14 @@ public class Baekjoon_18405 {
             this.key = key;
         }
 
-        public List<Point> getPointList() {
-            return pointList;
-        }
-
         public void addPoint(Point point) {
             pointList.add(point);
         }
     }
+
+    // 상하좌우
+    private final static int[] xDir = {0, 0, -1, 1};
+    private final static int[] yDir = {-1, 1, 0, 0};
 
     public static void main(String[] args) {
 
@@ -48,6 +49,7 @@ public class Baekjoon_18405 {
          * 바이러스의 순서대로 좌표값을 저장할 List 필요 + 움직일 수 없다면 증식 리스트에서 제거
          */
 
+        int result = 0;
         try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in))) {
             // 1. N K 파싱
             String[] splitData = bufferedReader.readLine().split(" ");
@@ -88,10 +90,46 @@ public class Baekjoon_18405 {
             int targetX = Integer.parseInt(splitData[1]);
             int targetY = Integer.parseInt(splitData[2]);
 
-
+            result = predictVirusTypeInPointAfterTime(map, virusArray, s, targetX, targetY);
         } catch (IOException e) {
 
         }
+        System.out.println(result);
+    }
+
+    private static int predictVirusTypeInPointAfterTime(int[][] map, Virus[] virusArray, int targetTime, int targetX, int targetY) {
+        int currTime = 0;
+        while (currTime++ < targetTime) {
+            for (Virus virus: virusArray) {
+                if (virus == null) {
+                    continue;
+                }
+                int totalSize = virus.pointList.size() - 1;
+                for (int pointIdx = totalSize; pointIdx > -1; pointIdx--) {
+                    Point currPoint = virus.pointList.get(pointIdx);
+                    // 확장하지 못한 바이러스는 제외
+                    if (!spreadVirus(virus, currPoint, map)) {
+                        virus.pointList.remove(pointIdx);
+                    }
+                }
+            }
+        }
+        return map[targetX][targetY];
+    }
+
+    private static boolean spreadVirus(Virus virus, Point currPoint, int[][] map) {
+        boolean isActive = false;
+        for (int dirIdx = 0; dirIdx < 4; dirIdx++) {
+            // 움직일 수 있는 좌표라면,
+            int nextRow = currPoint.row + yDir[dirIdx];
+            int nextCol = currPoint.col + xDir[dirIdx];
+            if (map[nextRow][nextCol] == 0) {
+                map[nextRow][nextCol] = virus.key;
+                virus.addPoint(new Point(nextRow, nextCol));
+                isActive = true;
+            }
+        }
+        return isActive;
     }
 
 }
